@@ -1,14 +1,8 @@
 package es.ieslosmontecillos.implementacioncomponenteintermedio;
 
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -21,66 +15,61 @@ public class Temporizador extends HBox {
     @FXML
     private Label temporizadorLabel;
 
-    private boolean autoReverse;
-    private IntegerProperty segundos;
-    private Timeline temporizador;
-    private EventHandler<ActionEvent> onFinished;
+    private SimpleIntegerProperty tiempoProperty = new SimpleIntegerProperty();
+    private Timeline timeline;
 
     public Temporizador() {
+        // Cargar el archivo FXML
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Temporizador.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        segundos = new SimpleIntegerProperty();
 
-        segundos.addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                System.out.println(newValue.toString());
-                temporizadorLabel.setText(newValue.toString());
-            }
+        // Inicializar la línea de tiempo
+        timeline = new Timeline();
+        timeline.setOnFinished(event -> {
+            System.out.println("Tiempo agotado");
         });
     }
 
-    public void play() {
-        temporizador = new Timeline();
-        temporizador.setAutoReverse(false);
-        final KeyValue kvTemp = new KeyValue(segundos, 0);
-        final KeyFrame kfTemp = new KeyFrame(Duration.seconds(segundos.doubleValue()), onFinished, kvTemp);
-        temporizador.getKeyFrames().add(kfTemp);
-        temporizador.play();
+    public int getTiempo() {
+        return tiempoProperty.get();
     }
 
-    public void setOnFinished(EventHandler<ActionEvent> onFinished) {
-        this.onFinished = onFinished;
+    public void setTiempo(int tiempo) {
+        tiempoProperty.set(tiempo);
+        actualizarEtiqueta();
     }
 
-    public final EventHandler<ActionEvent> getOnFinished() {
-        return onFinished;
+    public SimpleIntegerProperty tiempoProperty() {
+        return tiempoProperty;
     }
 
-    public int getSegundos() {
-        return segundos.get();
+    private void actualizarEtiqueta() {
+        temporizadorLabel.setText("Tiempo restante: " + tiempoProperty.get() + " segundos");
     }
 
-    public IntegerProperty segundosProperty() {
-        return segundos;
+    @FXML
+    private void initialize() {
+        actualizarEtiqueta();
     }
 
-    public void setSegundos(int segundos) {
-        this.segundos.set(segundos);
-    }
-
-    public boolean isAutoReverse() {
-        return autoReverse;
-    }
-
-    public void setAutoReverse(boolean autoReverse) {
-        this.autoReverse = autoReverse;
-        temporizador.setAutoReverse(autoReverse);
+    public void iniciarCronometro() {
+        tiempoProperty.set(getTiempo());
+        KeyFrame keyFrame = new KeyFrame(Duration.seconds(1), event -> {
+            tiempoProperty.set(tiempoProperty.get() - 1);
+            if (tiempoProperty.get() <= 0) {
+                timeline.stop();
+                System.out.println("Tiempo agotado");
+            }
+        });
+        timeline.getKeyFrames().setAll(keyFrame);
+        timeline.setCycleCount(tiempoProperty.get());
+        timeline.playFromStart();
     }
 }
