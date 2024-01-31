@@ -10,7 +10,13 @@ import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
-
+/**
+ * El componente Temporizador representa un temporizador con cuenta atrás en JavaFX.
+ * Cuando la cuenta atrás llega a cero, se imprime un mensaje indicando que el tiempo se ha agotado.
+ *
+* @author Raul Plaza Galvez
+* @version 1.0 31/01/2024
+* */
 public class Temporizador extends HBox {
     @FXML
     private Label temporizadorLabel;
@@ -19,7 +25,9 @@ public class Temporizador extends HBox {
     private Timeline timeline;
 
     public Temporizador() {
-        // Cargar el archivo FXML
+        /**
+        * Contructor de la clase Temporizador. En ella estamos cargando el fxml "Temporizador.fxml"
+        * */
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Temporizador.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
@@ -35,20 +43,34 @@ public class Temporizador extends HBox {
         timeline.setOnFinished(event -> {
             System.out.println("Tiempo agotado");
         });
-    }
 
+    }
+    /**
+    *  Obtiene el tiempo actual del tiempo.
+     *
+     *  @return devuelve el valor tiempo en segundos.
+    * */
     public int getTiempo() {
         return tiempoProperty.get();
     }
 
+    /**
+    * Establece el tiempo Inicial del temporizador.
+    * */
     public void setTiempo(int tiempo) {
         tiempoProperty.set(tiempo);
         actualizarEtiqueta();
     }
-
+    /**
+    * Obtiene la propiedad del SimpleIntegerProperty
+    * */
     public SimpleIntegerProperty tiempoProperty() {
         return tiempoProperty;
     }
+
+    /**
+    * La etiqueta se actualiza cada vez que avanza el tiempo.
+    * */
 
     private void actualizarEtiqueta() {
         temporizadorLabel.setText("Tiempo restante: " + tiempoProperty.get() + " segundos");
@@ -59,6 +81,10 @@ public class Temporizador extends HBox {
         actualizarEtiqueta();
     }
 
+    /**
+     * Inicia el cronometro ademas de la cuenta atras.
+     *
+     * */
     public void iniciarCronometro() {
         tiempoProperty.set(getTiempo());
         KeyFrame keyFrame = new KeyFrame(Duration.seconds(1), event -> {
