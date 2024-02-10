@@ -62,7 +62,7 @@ public class Temporizador extends HBox {
         actualizarEtiqueta();
     }
     /**
-    * Obtiene la propiedad del SimpleIntegerProperty
+    * Permite acceder a la propiedad tiempo y obtener su valor.
     * */
     public SimpleIntegerProperty tiempoProperty() {
         return tiempoProperty;
